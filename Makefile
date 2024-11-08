@@ -5,7 +5,7 @@ CC := gcc
 C_FLAGS := -std=c99 -g -Wall -Wextra
 
 define GET_VERSIONED_NAME
-	$(NAME).$(1).$(VERSION)
+$(NAME).$(1).$(VERSION)
 endef
 
 BUILD_DIR := ./build
@@ -94,7 +94,7 @@ test: $(TEST_OBJS) $(RELEASE_O);
 release: C_FLAGS := -std=c99 -O2 -g -DNDDEBUG -Wall -Wextra
 release: clean $(VERSIONED_RELEASE_ASSETS) $(UNVERSIONED_RELEASE_ASSETS) app test;
 	cp $(LIB_HDRS) $(RELEASE_DIR);
-	tar -czvf $(BUILD_DIR)/$(NAME).tar.gz.$(VERSION) -C $(RELEASE_DIR) .;
+	tar -czvf $(BUILD_DIR)/$(call GET_VERSIONED_NAME,tar.gz) -C $(RELEASE_DIR) .;
 
 clean:
-	rm -f $(APP_OBJS) $(LIB_OBJS) $(TEST_OBJS) $(RELEASE_DIR)/* $(BIN_DIR)/* $(BUILD_DIR)/$(NAME).tar.gz.$(VERSION);
+	rm -f $(APP_OBJS) $(LIB_OBJS) $(TEST_OBJS) $(RELEASE_DIR)/* $(BIN_DIR)/* $(BUILD_DIR)/$(call GET_VERSIONED_NAME,tar.gz);
