@@ -1,9 +1,12 @@
-VERSION := 0.0.0
 NAME := libc_logger
-QUALIFIER := $(NAME)-$(VERSION)
+VERSION := 0.0.0
 
 CC := gcc
 C_FLAGS := -std=c99 -g -Wall -Wextra
+
+define VERSIONED
+	$(NAME).$(1).$(VERSION)
+endef
 
 BUILD_DIR := ./build
 BIN_DIR := $(BUILD_DIR)/bin
@@ -11,9 +14,10 @@ DIST_DIR := $(BUILD_DIR)/dist
 OBJ_DIR := $(BUILD_DIR)/obj
 SRC_DIR := ./src
 # DIST_OBJS := $(wildcard $(DIST_DIR)/*.o)
-DIST_OBJS := $(DIST_DIR)/$(NAME).o
+DIST_OBJS := $(DIST_DIR)/$(NAME).o.$(VERSION)
+RELEASE_ASSETS := $(call VERSIONED,o) $(call VERSIONED,a) $(call VERSIONED,so)
 
-all: clean $(NAME).o $(NAME).so $(NAME).a app test;
+all: clean $(RELEASE_ASSETS) app test;
 
 DEPS_DIR := $(SRC_DIR)/deps
 DEPS_OBJS := $(wildcard $(DEPS_DIR)/*.o)
@@ -47,13 +51,13 @@ LIB_OBJS := $(patsubst $(LIB_SRC_DIR)/%.c, $(LIB_OBJ_DIR)/%.o, $(LIB_SRCS))
 $(LIB_OBJ_DIR)/%.o: $(LIB_SRC_DIR)/%.c | $(LIB_OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(NAME).o: $(LIB_OBJS) $(DEPS_OBJS);
+$(call VERSIONED,o): $(LIB_OBJS) $(DEPS_OBJS);
 	ld -relocatable -o $(DIST_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
-$(NAME).a: $(LIB_OBJS) $(DEPS_OBJS);
+$(call VERSIONED,a): $(LIB_OBJS) $(DEPS_OBJS);
 	ar rcs $(DIST_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
-$(NAME).so: $(LIB_OBJS) $(DEPS_OBJS);
+$(call VERSIONED,so): $(LIB_OBJS) $(DEPS_OBJS);
 	$(CC) $(C_FLAGS) -fPIC -shared -lc -o $(DIST_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 #------------------------------
