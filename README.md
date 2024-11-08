@@ -1,3 +1,3 @@
-# c_errors
+# c_logger
 
-## Utils for custom error handling in C.
+## Basic logging utils.
