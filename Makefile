@@ -10,10 +10,10 @@ endef
 
 BUILD_DIR := ./build
 BIN_DIR := $(BUILD_DIR)/bin
-DIST_DIR := $(BUILD_DIR)/dist
+RELEASE_DIR := $(BUILD_DIR)/release
 OBJ_DIR := $(BUILD_DIR)/obj
 SRC_DIR := ./src
-RELEASE_O := $(DIST_DIR)/$(NAME).o
+RELEASE_O := $(RELEASE_DIR)/$(NAME).o
 VERSIONED_RELEASE_ASSETS := $(call GET_VERSIONED_NAME,o) $(call GET_VERSIONED_NAME,a) $(call GET_VERSIONED_NAME,so)
 UNVERSIONED_RELEASE_ASSETS := $(NAME).o $(NAME).a $(NAME).so
 
@@ -53,23 +53,23 @@ $(LIB_OBJ_DIR)/%.o: $(LIB_SRC_DIR)/%.c | $(LIB_OBJ_DIR)
 
 # VERSIONED
 $(call GET_VERSIONED_NAME,o): $(LIB_OBJS) $(DEPS_OBJS);
-	ld -relocatable -o $(DIST_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
+	ld -relocatable -o $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 $(call GET_VERSIONED_NAME,a): $(LIB_OBJS) $(DEPS_OBJS);
-	ar rcs $(DIST_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
+	ar rcs $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 $(call GET_VERSIONED_NAME,so): $(LIB_OBJS) $(DEPS_OBJS);
-	$(CC) $(C_FLAGS) -fPIC -shared -lc -o $(DIST_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
+	$(CC) $(C_FLAGS) -fPIC -shared -lc -o $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 # UNVERSIONED
 $(NAME).o: $(LIB_OBJS) $(DEPS_OBJS);
-	ld -relocatable -o $(DIST_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
+	ld -relocatable -o $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 $(NAME).a: $(LIB_OBJS) $(DEPS_OBJS);
-	ar rcs $(DIST_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
+	ar rcs $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 $(NAME).so: $(LIB_OBJS) $(DEPS_OBJS);
-	$(CC) $(C_FLAGS) -fPIC -shared -lc -o $(DIST_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
+	$(CC) $(C_FLAGS) -fPIC -shared -lc -o $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 #------------------------------
 # TESTS
@@ -93,8 +93,8 @@ test: $(TEST_OBJS) $(RELEASE_O);
 
 release: C_FLAGS := -std=c99 -O2 -g -DNDDEBUG -Wall -Wextra
 release: clean $(VERSIONED_RELEASE_ASSETS) $(UNVERSIONED_RELEASE_ASSETS) app test;
-	cp $(LIB_HDRS) $(DIST_DIR);
-	tar -czvf $(BUILD_DIR)/$(NAME).tar.gz.$(VERSION) -C $(DIST_DIR) .;
+	cp $(LIB_HDRS) $(RELEASE_DIR);
+	tar -czvf $(BUILD_DIR)/$(NAME).tar.gz.$(VERSION) -C $(RELEASE_DIR) .;
 
 clean:
-	rm -f $(APP_OBJS) $(LIB_OBJS) $(TEST_OBJS) $(DIST_DIR)/* $(BIN_DIR)/* $(BUILD_DIR)/$(NAME).tar.gz.$(VERSION);
+	rm -f $(APP_OBJS) $(LIB_OBJS) $(TEST_OBJS) $(RELEASE_DIR)/* $(BIN_DIR)/* $(BUILD_DIR)/$(NAME).tar.gz.$(VERSION);
