@@ -98,3 +98,10 @@ release: clean $(VERSIONED_RELEASE_ASSETS) $(UNVERSIONED_RELEASE_ASSETS) app tes
 
 clean:
 	rm -f $(APP_OBJS) $(LIB_OBJS) $(TEST_OBJS) $(RELEASE_DIR)/* $(BIN_DIR)/* $(BUILD_DIR)/$(call GET_VERSIONED_NAME,tar.gz);
+
+# TODO create all necessary dirs if not exist
+# Create obj directory if it does not exist
+# $(OBJ_DIR):
+# 	mkdir -p $(OBJ_DIR)
+
+# TODO support 1 level dirs for deps eq. deps/raylib/raylib.h deps/raylib/raylib.a
