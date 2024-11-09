@@ -104,5 +104,3 @@ clean:
 # Create obj directory if it does not exist
 # $(OBJ_DIR):
 # 	mkdir -p $(OBJ_DIR)
-
-# TODO support 1 level dirs for deps eq. deps/raylib/raylib.h deps/raylib/raylib.a
