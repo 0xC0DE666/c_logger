@@ -3,40 +3,76 @@
 
 #include "./c_logger.h"
 
-void write_log(LogLevel level, const char* message) {
+
+Logger logger_new(LogLevel level) {
+  return (Logger) {level};
+}
+
+void get_time(char* buff, size_t size) {
   // Get the current time
   time_t now = time(NULL);
   struct tm* time = localtime(&now);
 
   // Format the time
-  char str_time[20];
-  strftime(str_time, sizeof(str_time), "%Y-%m-%d %H:%M:%S", time);
-
-  if (level == ERROR && level >= ERROR) {
-    printf(RED "[ERROR] " RESET);
-    printf("(%s) -- ", str_time);
-    printf(message);
-  }
-  if (level == WARN && level >= WARN) {
-    printf(YELLOW "[WARN] " RESET);
-    printf("(%s) -- ", str_time);
-    printf(message);
-  }
-  if (level == INFO && level >= INFO) {
-    printf(GREEN "[INFO] " RESET);
-    printf("(%s) -- ", str_time);
-    printf(message);
-  }
-  if (level == DEBUG && level >= DEBUG) {
-    printf(BLUE "[DEBUG] " RESET);
-    printf("(%s) -- ", str_time);
-    printf(message);
-  }
-  if (level == VERBOSE && level >= VERBOSE) {
-    printf("[VERBOSE] ");
-    printf("(%s) -- ", str_time);
-    printf(message);
-  }
+  strftime(buff, size, "%Y-%m-%d %H:%M:%S", time);
 }
 
+void log_error(const Logger* logger, const char* message) {
+  if (logger->level < ERROR) return;
 
+  int size = 20;
+  char str_time[size];
+  get_time(str_time, size);
+
+  printf(RED "[ERROR] " RESET);
+  printf("(%s) -- ", str_time);
+  printf(message);
+}
+
+void log_warn(const Logger* logger, const char* message) {
+  if (logger->level < WARN) return;
+
+  int size = 20;
+  char str_time[size];
+  get_time(str_time, size);
+
+  printf(YELLOW "[WARN] " RESET);
+  printf("(%s) -- ", str_time);
+  printf(message);
+}
+
+void log_info(const Logger* logger, const char* message) {
+  if (logger->level < INFO) return;
+
+  int size = 20;
+  char str_time[size];
+  get_time(str_time, size);
+
+  printf(GREEN "[INFO] " RESET);
+  printf("(%s) -- ", str_time);
+  printf(message);
+}
+
+void log_debug(const Logger* logger, const char* message) {
+  if (logger->level < DEBUG) return;
+
+  int size = 20;
+  char str_time[size];
+  get_time(str_time, size);
+
+  printf(BLUE "[DEBUG] " RESET);
+  printf("(%s) -- ", str_time);
+  printf(message);
+}
+
+void log_verbose(const Logger* logger, const char* message) {
+  if (logger->level < VERBOSE) return;
+
+  int size = 20;
+  char str_time[size];
+  get_time(str_time, size);
+
+  printf("[VERBOSE] ");
+  printf("(%s) -- ", str_time);
+  printf(message);
+}

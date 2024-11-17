@@ -12,6 +12,18 @@ typedef enum LogLevel {
   ERROR = 0, WARN = 1, INFO = 2, DEBUG = 3, VERBOSE = 4
 } LogLevel;
 
-void write_log(LogLevel, const char*);
+typedef struct Logger {
+  LogLevel level;
+} Logger;
+
+Logger logger_new(LogLevel level);
+
+void get_time(char* buff, size_t size);
+
+void log_error(const Logger* logger, const char* message);
+void log_warn(const Logger* logger, const char* message);
+void log_info(const Logger* logger, const char* message);
+void log_debug(const Logger* logger, const char* message);
+void log_verbose(const Logger* logger, const char* message);
 
 #endif
