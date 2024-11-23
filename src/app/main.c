@@ -27,12 +27,12 @@ int main() {
   }
 
   log_fatal(&logger, "logger message %d\n", FATAL);
-  log_error(&logger, "logger message\n");
-  log_warn(&logger, "logger message\n");
-  log_info(&logger, "logger message\n");
-  log_debug(&logger, "logger message\n");
-  log_trace(&logger, "logger message\n");
-  log_verbose(&logger, "logger message\n");
+  log_error(&logger, "logger message %d\n", ERROR);
+  log_warn(&logger, "logger message %d\n", WARN);
+  log_info(&logger, "logger message %d\n", INFO);
+  log_debug(&logger, "logger message %d\n", DEBUG);
+  log_trace(&logger, "logger message %d\n", TRACE);
+  log_verbose(&logger, "logger message %d\n", VERBOSE);
 
   return 0;
 }

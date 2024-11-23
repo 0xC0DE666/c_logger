@@ -39,7 +39,7 @@ void log_fatal(Logger* logger, const char* message, ...) {
   pthread_mutex_unlock(&logger->lock);
 }
 
-void log_error(Logger* logger, const char* message) {
+void log_error(Logger* logger, const char* message, ...) {
   if (logger->level < ERROR) return;
   pthread_mutex_lock(&logger->lock);
 
@@ -47,13 +47,17 @@ void log_error(Logger* logger, const char* message) {
   char str_time[size];
   get_time(str_time, size);
 
+  va_list args;
+  va_start(args, message);
   printf(TXT_RED "[ERROR] " RESET);
   printf("(%s) -- ", str_time);
-  printf(message);
+  vfprintf(stdout, message, args);
+  va_end(args);
+
   pthread_mutex_unlock(&logger->lock);
 }
 
-void log_warn(Logger* logger, const char* message) {
+void log_warn(Logger* logger, const char* message, ...) {
   if (logger->level < WARN) return;
   pthread_mutex_lock(&logger->lock);
 
@@ -61,13 +65,17 @@ void log_warn(Logger* logger, const char* message) {
   char str_time[size];
   get_time(str_time, size);
 
+  va_list args;
+  va_start(args, message);
   printf(TXT_YELLOW "[WARN] " RESET);
   printf("(%s) -- ", str_time);
-  printf(message);
+  vfprintf(stdout, message, args);
+  va_end(args);
+
   pthread_mutex_unlock(&logger->lock);
 }
 
-void log_info(Logger* logger, const char* message) {
+void log_info(Logger* logger, const char* message, ...) {
   if (logger->level < INFO) return;
   pthread_mutex_lock(&logger->lock);
 
@@ -75,13 +83,17 @@ void log_info(Logger* logger, const char* message) {
   char str_time[size];
   get_time(str_time, size);
 
+  va_list args;
+  va_start(args, message);
   printf(TXT_GREEN "[INFO] " RESET);
   printf("(%s) -- ", str_time);
-  printf(message);
+  vfprintf(stdout, message, args);
+  va_end(args);
+
   pthread_mutex_unlock(&logger->lock);
 }
 
-void log_debug(Logger* logger, const char* message) {
+void log_debug(Logger* logger, const char* message, ...) {
   if (logger->level < DEBUG) return;
   pthread_mutex_lock(&logger->lock);
 
@@ -89,13 +101,17 @@ void log_debug(Logger* logger, const char* message) {
   char str_time[size];
   get_time(str_time, size);
 
+  va_list args;
+  va_start(args, message);
   printf(TXT_BLUE "[DEBUG] " RESET);
   printf("(%s) -- ", str_time);
-  printf(message);
+  vfprintf(stdout, message, args);
+  va_end(args);
+
   pthread_mutex_unlock(&logger->lock);
 }
 
-void log_trace(Logger* logger, const char* message) {
+void log_trace(Logger* logger, const char* message, ...) {
   if (logger->level < TRACE) return;
   pthread_mutex_lock(&logger->lock);
 
@@ -103,13 +119,17 @@ void log_trace(Logger* logger, const char* message) {
   char str_time[size];
   get_time(str_time, size);
 
+  va_list args;
+  va_start(args, message);
   printf(TXT_CYAN "[TRACE] " RESET);
   printf("(%s) -- ", str_time);
-  printf(message);
+  vfprintf(stdout, message, args);
+  va_end(args);
+
   pthread_mutex_unlock(&logger->lock);
 }
 
-void log_verbose(Logger* logger, const char* message) {
+void log_verbose(Logger* logger, const char* message, ...) {
   if (logger->level < VERBOSE) return;
   pthread_mutex_lock(&logger->lock);
 
@@ -117,8 +137,12 @@ void log_verbose(Logger* logger, const char* message) {
   char str_time[size];
   get_time(str_time, size);
 
+  va_list args;
+  va_start(args, message);
   printf("[VERBOSE] ");
   printf("(%s) -- ", str_time);
-  printf(message);
+  vfprintf(stdout, message, args);
+  va_end(args);
+
   pthread_mutex_unlock(&logger->lock);
 }
