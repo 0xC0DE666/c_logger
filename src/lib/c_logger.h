@@ -4,49 +4,55 @@
 #include <stdbool.h>
 #include <pthread.h>
 
-// Define ANSI color codes
-#define RED "\033[31m"
-#define GREEN "\033[32m"
-#define YELLOW "\033[33m"
-#define BLUE "\033[34m"
-#define RESET "\033[0m"
+//####################
+// ANSI COLOR CODES
+//####################
+
+#define RESET       "\033[0m"
+
+// Text Colors
+#define TXT_BLACK       "\033[30m"
+#define TXT_RED         "\033[31m"
+#define TXT_GREEN       "\033[32m"
+#define TXT_YELLOW      "\033[33m"
+#define TXT_BLUE        "\033[34m"
+#define TXT_MAGENTA     "\033[35m"
+#define TXT_CYAN        "\033[36m"
+#define TXT_WHITE       "\033[37m"
+
+// Bright Text Colors
+#define TXT_BRIGHT_BLACK   "\033[90m"
+#define TXT_BRIGHT_RED     "\033[91m"
+#define TXT_BRIGHT_GREEN   "\033[92m"
+#define TXT_BRIGHT_YELLOW  "\033[93m"
+#define TXT_BRIGHT_BLUE    "\033[94m"
+#define TXT_BRIGHT_MAGENTA "\033[95m"
+#define TXT_BRIGHT_CYAN    "\033[96m"
+#define TXT_BRIGHT_WHITE   "\033[97m"
+
+//####################
+// LOGGER
+//####################
 
 void get_time(char* buff, size_t size);
 
 typedef enum LogLevel {
-  ERROR = 0, WARN = 1, INFO = 2, DEBUG = 3, VERBOSE = 4
+  FATAL = 0, ERROR = 1, WARN = 2, INFO = 2, DEBUG = 3, TRACE = 5, VERBOSE = 6
 } LogLevel;
 
-//####################
-// BASIC LOGGER
-//####################
 typedef struct Logger {
   LogLevel level;
+  pthread_mutex_t lock;
 } Logger;
 
 Logger logger_new(LogLevel level);
 
-void log_error(const Logger* logger, const char* message);
-void log_warn(const Logger* logger, const char* message);
-void log_info(const Logger* logger, const char* message);
-void log_debug(const Logger* logger, const char* message);
-void log_verbose(const Logger* logger, const char* message);
-
-//####################
-// SAFE LOGGER
-//####################
-
-typedef struct SafeLogger {
-  pthread_mutex_t lock;
-  Logger this;
-} SafeLogger;
-
-SafeLogger safe_logger_new(LogLevel level);
-
-void safe_log_error(SafeLogger* logger, const char* message);
-void safe_log_warn(SafeLogger* logger, const char* message);
-void safe_log_info(SafeLogger* logger, const char* message);
-void safe_log_debug(SafeLogger* logger, const char* message);
-void safe_log_verbose(SafeLogger* logger, const char* message);
+void log_fatal(Logger* logger, const char* message);
+void log_error(Logger* logger, const char* message);
+void log_warn(Logger* logger, const char* message);
+void log_info(Logger* logger, const char* message);
+void log_debug(Logger* logger, const char* message);
+void log_trace(Logger* logger, const char* message);
+void log_verbose(Logger* logger, const char* message);
 
 #endif

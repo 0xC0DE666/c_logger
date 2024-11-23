@@ -3,6 +3,10 @@
 
 #include "./c_logger.h"
 
+//####################
+// LOGGER
+//####################
+
 void get_time(char* buff, size_t size) {
   // Get the current time
   time_t now = time(NULL);
@@ -12,140 +16,96 @@ void get_time(char* buff, size_t size) {
   strftime(buff, size, "%Y-%m-%d %H:%M:%S", time);
 }
 
-//####################
-// UNSAFE LOGGER
-//####################
-
 Logger logger_new(LogLevel level) {
-  return (Logger) {level};
+  return (Logger) {level, PTHREAD_MUTEX_INITIALIZER};
 }
 
-void log_error(const Logger* logger, const char* message) {
+void log_fatal(Logger* logger, const char* message) {
+  if (logger->level < FATAL) return;
+  pthread_mutex_lock(&logger->lock);
+
+  int size = 20;
+  char str_time[size];
+  get_time(str_time, size);
+
+  printf(TXT_BRIGHT_RED "[FATAL] " RESET);
+  printf("(%s) -- ", str_time);
+  printf(message);
+  pthread_mutex_unlock(&logger->lock);
+}
+
+void log_error(Logger* logger, const char* message) {
   if (logger->level < ERROR) return;
+  pthread_mutex_lock(&logger->lock);
 
   int size = 20;
   char str_time[size];
   get_time(str_time, size);
 
-  printf(RED "[ERROR] " RESET);
+  printf(TXT_RED "[ERROR] " RESET);
   printf("(%s) -- ", str_time);
   printf(message);
+  pthread_mutex_unlock(&logger->lock);
 }
 
-void log_warn(const Logger* logger, const char* message) {
+void log_warn(Logger* logger, const char* message) {
   if (logger->level < WARN) return;
+  pthread_mutex_lock(&logger->lock);
 
   int size = 20;
   char str_time[size];
   get_time(str_time, size);
 
-  printf(YELLOW "[WARN] " RESET);
+  printf(TXT_YELLOW "[WARN] " RESET);
   printf("(%s) -- ", str_time);
   printf(message);
+  pthread_mutex_unlock(&logger->lock);
 }
 
-void log_info(const Logger* logger, const char* message) {
+void log_info(Logger* logger, const char* message) {
   if (logger->level < INFO) return;
+  pthread_mutex_lock(&logger->lock);
 
   int size = 20;
   char str_time[size];
   get_time(str_time, size);
 
-  printf(GREEN "[INFO] " RESET);
+  printf(TXT_GREEN "[INFO] " RESET);
   printf("(%s) -- ", str_time);
   printf(message);
+  pthread_mutex_unlock(&logger->lock);
 }
 
-void log_debug(const Logger* logger, const char* message) {
+void log_debug(Logger* logger, const char* message) {
   if (logger->level < DEBUG) return;
+  pthread_mutex_lock(&logger->lock);
 
   int size = 20;
   char str_time[size];
   get_time(str_time, size);
 
-  printf(BLUE "[DEBUG] " RESET);
+  printf(TXT_BLUE "[DEBUG] " RESET);
   printf("(%s) -- ", str_time);
   printf(message);
+  pthread_mutex_unlock(&logger->lock);
 }
 
-void log_verbose(const Logger* logger, const char* message) {
+void log_trace(Logger* logger, const char* message) {
+  if (logger->level < TRACE) return;
+  pthread_mutex_lock(&logger->lock);
+
+  int size = 20;
+  char str_time[size];
+  get_time(str_time, size);
+
+  printf(TXT_CYAN "[TRACE] " RESET);
+  printf("(%s) -- ", str_time);
+  printf(message);
+  pthread_mutex_unlock(&logger->lock);
+}
+
+void log_verbose(Logger* logger, const char* message) {
   if (logger->level < VERBOSE) return;
-
-  int size = 20;
-  char str_time[size];
-  get_time(str_time, size);
-
-  printf("[VERBOSE] ");
-  printf("(%s) -- ", str_time);
-  printf(message);
-}
-
-//####################
-// SAFE LOGGER
-//####################
-
-SafeLogger safe_logger_new(LogLevel level) {
-  return (SafeLogger) {PTHREAD_MUTEX_INITIALIZER, logger_new(level)};
-}
-
-void safe_log_error(SafeLogger* logger, const char* message) {
-  if (logger->this.level < ERROR) return;
-  pthread_mutex_lock(&logger->lock);
-
-  int size = 20;
-  char str_time[size];
-  get_time(str_time, size);
-
-  printf(RED "[ERROR] " RESET);
-  printf("(%s) -- ", str_time);
-  printf(message);
-  pthread_mutex_unlock(&logger->lock);
-}
-
-void safe_log_warn(SafeLogger* logger, const char* message) {
-  if (logger->this.level < WARN) return;
-  pthread_mutex_lock(&logger->lock);
-
-  int size = 20;
-  char str_time[size];
-  get_time(str_time, size);
-
-  printf(YELLOW "[WARN] " RESET);
-  printf("(%s) -- ", str_time);
-  printf(message);
-  pthread_mutex_unlock(&logger->lock);
-}
-
-void safe_log_info(SafeLogger* logger, const char* message) {
-  if (logger->this.level < INFO) return;
-  pthread_mutex_lock(&logger->lock);
-
-  int size = 20;
-  char str_time[size];
-  get_time(str_time, size);
-
-  printf(GREEN "[INFO] " RESET);
-  printf("(%s) -- ", str_time);
-  printf(message);
-  pthread_mutex_unlock(&logger->lock);
-}
-
-void safe_log_debug(SafeLogger* logger, const char* message) {
-  if (logger->this.level < DEBUG) return;
-  pthread_mutex_lock(&logger->lock);
-
-  int size = 20;
-  char str_time[size];
-  get_time(str_time, size);
-
-  printf(BLUE "[DEBUG] " RESET);
-  printf("(%s) -- ", str_time);
-  printf(message);
-  pthread_mutex_unlock(&logger->lock);
-}
-
-void safe_log_verbose(SafeLogger* logger, const char* message) {
-  if (logger->this.level < VERBOSE) return;
   pthread_mutex_lock(&logger->lock);
 
   int size = 20;
