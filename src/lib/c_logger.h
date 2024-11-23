@@ -41,13 +41,13 @@ typedef enum LogLevel {
 } LogLevel;
 
 typedef struct Logger {
-  LogLevel level;
   pthread_mutex_t lock;
+  LogLevel level;
 } Logger;
 
 Logger logger_new(LogLevel level);
 
-void log_fatal(Logger* logger, const char* message);
+void log_fatal(Logger* logger, const char* message, ...);
 void log_error(Logger* logger, const char* message);
 void log_warn(Logger* logger, const char* message);
 void log_info(Logger* logger, const char* message);

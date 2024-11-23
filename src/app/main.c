@@ -26,7 +26,7 @@ int main() {
     pthread_join(threads[i], NULL);
   }
 
-  log_fatal(&logger, "logger message\n");
+  log_fatal(&logger, "logger message %d\n", FATAL);
   log_error(&logger, "logger message\n");
   log_warn(&logger, "logger message\n");
   log_info(&logger, "logger message\n");

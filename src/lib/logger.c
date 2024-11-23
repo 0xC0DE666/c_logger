@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -17,10 +18,10 @@ void get_time(char* buff, size_t size) {
 }
 
 Logger logger_new(LogLevel level) {
-  return (Logger) {level, PTHREAD_MUTEX_INITIALIZER};
+  return (Logger) {PTHREAD_MUTEX_INITIALIZER, level};
 }
 
-void log_fatal(Logger* logger, const char* message) {
+void log_fatal(Logger* logger, const char* message, ...) {
   if (logger->level < FATAL) return;
   pthread_mutex_lock(&logger->lock);
 
@@ -28,9 +29,13 @@ void log_fatal(Logger* logger, const char* message) {
   char str_time[size];
   get_time(str_time, size);
 
+  va_list args;
+  va_start(args, message);
   printf(TXT_BRIGHT_RED "[FATAL] " RESET);
   printf("(%s) -- ", str_time);
-  printf(message);
+  vfprintf(stdout, message, args);
+  va_end(args);
+
   pthread_mutex_unlock(&logger->lock);
 }
 
