@@ -47,12 +47,12 @@ typedef struct Logger {
 
 Logger logger_new(LogLevel level);
 
-void log_fatal(Logger* logger, const char* message, ...);
-void log_error(Logger* logger, const char* message, ...);
-void log_warn(Logger* logger, const char* message, ...);
-void log_info(Logger* logger, const char* message, ...);
-void log_debug(Logger* logger, const char* message, ...);
-void log_trace(Logger* logger, const char* message, ...);
-void log_verbose(Logger* logger, const char* message, ...);
+void log_fatal(const Logger* logger, const char* message, ...);
+void log_error(const Logger* logger, const char* message, ...);
+void log_warn(const Logger* logger, const char* message, ...);
+void log_info(const Logger* logger, const char* message, ...);
+void log_debug(const Logger* logger, const char* message, ...);
+void log_trace(const Logger* logger, const char* message, ...);
+void log_verbose(const Logger* logger, const char* message, ...);
 
 #endif

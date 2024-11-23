@@ -2,7 +2,7 @@ NAME := libc_logger
 VERSION := 2.0.0
 
 CC := gcc
-C_FLAGS := -std=c99 -g -Wall -Wextra
+C_FLAGS := -std=c99 -g -Wall -Wextra -Wno-discarded-qualifiers
 
 define GET_VERSIONED_NAME
 $(NAME).$(1).$(VERSION)
