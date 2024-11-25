@@ -31,9 +31,9 @@ void log_fatal(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  printf(TXT_BRIGHT_RED "[FATAL] " RESET);
-  printf("(%s) -- ", str_time);
-  vfprintf(stdout, message, args);
+  fprintf(stderr, TXT_BRIGHT_RED "[FATAL] " RESET);
+  fprintf(stderr, "(%s) -- ", str_time);
+  vfprintf(stderr, message, args);
   va_end(args);
 
   pthread_mutex_unlock(&logger->lock);
@@ -49,9 +49,9 @@ void log_error(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  printf(TXT_RED "[ERROR] " RESET);
-  printf("(%s) -- ", str_time);
-  vfprintf(stdout, message, args);
+  fprintf(stderr, TXT_RED "[ERROR] " RESET);
+  fprintf(stderr, "(%s) -- ", str_time);
+  vfprintf(stderr, message, args);
   va_end(args);
 
   pthread_mutex_unlock(&logger->lock);
@@ -67,9 +67,9 @@ void log_warn(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  printf(TXT_YELLOW "[WARN] " RESET);
-  printf("(%s) -- ", str_time);
-  vfprintf(stdout, message, args);
+  fprintf(stderr, TXT_YELLOW "[WARN] " RESET);
+  fprintf(stderr, "(%s) -- ", str_time);
+  vfprintf(stderr, message, args);
   va_end(args);
 
   pthread_mutex_unlock(&logger->lock);
