@@ -2,7 +2,7 @@ NAME := libc_logger
 VERSION := 2.0.0
 
 CC := gcc
-C_FLAGS := -std=c99 -g -Wall -Wextra -Wno-discarded-qualifiers
+C_FLAGS := -std=gnu99 -g -Wall -Wextra
 
 define GET_VERSIONED_NAME
 $(NAME).$(1).$(VERSION)
@@ -42,6 +42,7 @@ app: $(APP_OBJS) $(RELEASE_O);
 # LIB
 #------------------------------
 
+C_SO_FLAGS := -shared -fPIC -lc
 LIB_SRC_DIR := $(SRC_DIR)/lib
 LIB_OBJ_DIR := $(OBJ_DIR)/lib
 LIB_HDRS := $(shell find $(LIB_SRC_DIR) -type f -name "*.h")
@@ -59,7 +60,7 @@ $(call GET_VERSIONED_NAME,a): $(LIB_OBJS) $(DEPS_OBJS);
 	ar rcs $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 $(call GET_VERSIONED_NAME,so): $(LIB_OBJS) $(DEPS_OBJS);
-	$(CC) $(C_FLAGS)  -shared -lc -o $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
+	$(CC) $(C_FLAGS) $(C_SO_FLAGS) -o $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 # UNVERSIONED
 $(NAME).o: $(LIB_OBJS) $(DEPS_OBJS);
@@ -69,7 +70,7 @@ $(NAME).a: $(LIB_OBJS) $(DEPS_OBJS);
 	ar rcs $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 $(NAME).so: $(LIB_OBJS) $(DEPS_OBJS);
-	$(CC) $(C_FLAGS) -shared -lc -o $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
+	$(CC) $(C_FLAGS) $(C_SO_FLAGS) -o $(RELEASE_DIR)/$@ $(LIB_OBJS) $(DEPS_OBJS);
 
 #------------------------------
 # TESTS
@@ -91,16 +92,19 @@ test: $(TEST_OBJS) $(RELEASE_O);
 # RELEASE
 #------------------------------
 
-release: C_FLAGS := -std=c99 -O2 -g -DNDDEBUG -Wall -Wextra
+release: C_FLAGS := -std=gnu99 -O2 -g -DNDDEBUG -Wall -Wextra -pthread
 release: clean $(VERSIONED_RELEASE_ASSETS) $(UNVERSIONED_RELEASE_ASSETS) app test;
 	cp $(LIB_HDRS) $(RELEASE_DIR);
 	echo $(VERSION) > $(RELEASE_DIR)/version.txt;
 	tar -czvf $(BUILD_DIR)/$(call GET_VERSIONED_NAME,tar.gz) -C $(RELEASE_DIR) .;
 
+.PHONY: exe_app exe_test;
+
+exe_app: clean $(NAME).o app;
+	./build/bin/app;
+
+exe_test: clean $(NAME).o test;
+	./build/bin/test;
+
 clean:
 	rm -f $(APP_OBJS) $(LIB_OBJS) $(TEST_OBJS) $(RELEASE_DIR)/* $(BIN_DIR)/* $(BUILD_DIR)/$(call GET_VERSIONED_NAME,tar.gz);
-
-# TODO create all necessary dirs if not exist
-# Create obj directory if it does not exist
-# $(OBJ_DIR):
-# 	mkdir -p $(OBJ_DIR)

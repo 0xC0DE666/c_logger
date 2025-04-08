@@ -34,6 +34,7 @@
 // LOGGER
 //####################
 
+#define BUFF_SIZE_TIMESTAMP 20
 void get_time(char* buff, size_t size);
 
 typedef enum LogLevel {
