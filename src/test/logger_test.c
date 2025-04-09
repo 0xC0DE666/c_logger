@@ -107,24 +107,34 @@ Test(logger_levels, normal_out) {
 	fclose(err);
 }
 
-// Test message formatting
-// Test(logger_formatting, supports_format_strings, .init = redirect_all_std) {
-//     Logger* logger = logger_new(INFO);
-//     
-//     log_info(logger, "Test number: %d, string: %s\n", 42, "hello");
-//     
-//     fflush(stdout);
-//     char stdout_output[4096] = {0};
-//     FILE* f = cr_get_redirected_stdout();
-//     rewind(f);
-//     size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, f);
-//     stdout_output[bytes] = '\0';
-//     
-//     cr_assert(strstr(stdout_output, "Test number: 42, string: hello") != NULL,
-//               "Should format strings correctly");
-//     logger_free(logger);
-// }
-// 
+Test(logger_formatting, supports_format_strings) {
+	FILE* out = fopen(FILE_OUT, "a+");
+	FILE* err = fopen(FILE_ERR, "a+");
+    if (out == NULL) {
+        perror("Failed to open out");
+    }
+    if (err == NULL) {
+        perror("Failed to open err");
+    }
+
+    Logger* logger = logger_new(INFO, out, err);
+    
+    log_info(logger, "Test number: %d, string: %s\n", 42, "hello");
+    
+    char stdout_output[4096] = {0};
+    rewind(out);
+    size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, out);
+    stdout_output[bytes] = '\0';
+    
+    cr_assert(strstr(stdout_output, "Test number: 42, string: hello") != NULL,
+              "Should format strings correctly");
+    logger_free(logger);
+	remove(FILE_OUT);
+	remove(FILE_ERR);
+	fclose(out);
+	fclose(err);
+}
+
 // // Test timestamp format
 // Test(logger_timestamp, has_correct_format, .init = redirect_all_std) {
 //     Logger* logger = logger_new(INFO);
