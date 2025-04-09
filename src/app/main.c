@@ -17,14 +17,14 @@ void* t_log(void* logger) {
 
 int main() {
   Logger* logger = logger_new(VERBOSE, stdout, stderr);
-  // pthread_t threads[10] = {};
-  // for (int i = 0; i < 10; ++i) {
-  //   pthread_create(&threads[i], NULL, t_log, &logger);
-  // }
+  pthread_t threads[10] = {};
+  for (int i = 0; i < 10; ++i) {
+    pthread_create(&threads[i], NULL, t_log, logger);
+  }
 
-  // for (int i = 0; i < 10; ++i) {
-  //   pthread_join(threads[i], NULL);
-  // }
+  for (int i = 0; i < 10; ++i) {
+    pthread_join(threads[i], NULL);
+  }
 
   log_fatal(logger, "logger message %d\n", FATAL);
   log_error(logger, "logger message %d\n", ERROR);
@@ -34,5 +34,6 @@ int main() {
   log_trace(logger, "logger message %d\n", TRACE);
   log_verbose(logger, "logger message %d\n", VERBOSE);
 
+  logger_free(logger);
   return 0;
 }
