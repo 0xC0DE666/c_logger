@@ -20,8 +20,7 @@
 //     cr_redirect_stderr();
 // }
 
-// Test logger initialization
-Test(logger_init, creates_logger_with_correct_level) {
+Test(logger_init, create_logger) {
     Logger* logger = logger_new(INFO, stdout, stderr);
     cr_assert_eq(logger->level, INFO, "Logger level should be INFO");
     cr_assert_eq(logger->out, stdout, "Logger out should be stdout");
@@ -127,6 +126,78 @@ Test(logger_output, all_levels_verbose) {
     cr_assert(strstr(stdout_output, "Debug test") != NULL, "DEBUG should be present");
     cr_assert(strstr(stdout_output, "Trace test") != NULL, "TRACE should be present");
     cr_assert(strstr(stdout_output, "Verbose test") != NULL, "VERBOSE should be present");
+
+    logger_free(logger);
+	fclose(err);
+	fclose(out);
+	remove(err_file);
+	remove(out_file);
+}
+
+Test(logger_edge_cases, empty_error_message) {
+	char err_file[1024] = {0};
+	char out_file[1024] = {0};
+
+	snprintf(err_file, 1024, FILE_ERR, "empty_error_message");
+	snprintf(out_file, 1024, FILE_OUT, "empty_error_message");
+
+	FILE* err = fopen(err_file, "a+");
+	FILE* out = fopen(out_file, "a+");
+    if (err == NULL) {
+        perror("Failed to open err");
+    }
+    if (out == NULL) {
+        perror("Failed to open out");
+    }
+
+    Logger* logger = logger_new(ERROR, out, err);
+    
+    log_error(logger, "");
+    
+    char stderr_output[4096] = {0};
+    rewind(err);
+    size_t bytes = fread(stderr_output, 1, sizeof(stderr_output) - 1, err);
+    stderr_output[bytes] = '\0';
+    
+    cr_assert(strstr(stderr_output, "[ERROR]") != NULL, "Empty error message should still be logged with proper format");
+
+    logger_free(logger);
+	fclose(err);
+	fclose(out);
+	remove(err_file);
+	remove(out_file);
+}
+
+Test(logger_edge_cases, long_error_message) {
+	char err_file[1024] = {0};
+	char out_file[1024] = {0};
+
+	snprintf(err_file, 1024, FILE_ERR, "long_error_message");
+	snprintf(out_file, 1024, FILE_OUT, "long_error_message");
+
+	FILE* err = fopen(err_file, "a+");
+	FILE* out = fopen(out_file, "a+");
+    if (err == NULL) {
+        perror("Failed to open err");
+    }
+    if (out == NULL) {
+        perror("Failed to open out");
+    }
+
+    Logger* logger = logger_new(ERROR, out, err);
+    
+    char long_msg[1024];
+    memset(long_msg, 'a', 1023);
+    long_msg[1023] = '\0';
+    
+    log_error(logger, "%s\n", long_msg);
+    
+    char stderr_output[4096] = {0};
+    rewind(err);
+    size_t bytes = fread(stderr_output, 1, sizeof(stderr_output) - 1, err);
+    stderr_output[bytes] = '\0';
+    
+    cr_assert(strstr(stderr_output, long_msg) != NULL, "Long error message should be logged correctly");
 
     logger_free(logger);
 	fclose(err);
@@ -350,5 +421,3 @@ Test(logger_thread_safety, multiple_threads) {
 	remove(err_file);
 	remove(out_file);
 }
-
-
