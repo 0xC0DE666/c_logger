@@ -2,7 +2,7 @@ NAME := libc_logger
 VERSION := 2.0.0
 
 CC := gcc
-C_FLAGS := -std=gnu99 -g -Wall -Wextra
+C_FLAGS := -std=gnu99 -pthread -g -Wall -Wextra
 
 define GET_VERSIONED_NAME
 $(NAME).$(1).$(VERSION)
@@ -36,7 +36,7 @@ $(APP_OBJ_DIR)/%.o: $(APP_SRC_DIR)/%.c | $(APP_OBJ_DIR)
 	$(CC) $(C_FLAGS) -c $< -o $@
 
 app: $(APP_OBJS) $(RELEASE_O);
-	$(CC) $(C_FLAGS) -o $(BIN_DIR)/$@ $(APP_OBJS) $(RELEASE_O) -pthread;
+	$(CC) $(C_FLAGS) -o $(BIN_DIR)/$@ $(APP_OBJS) $(RELEASE_O);
 
 #------------------------------
 # LIB
@@ -86,13 +86,13 @@ $(TEST_OBJ_DIR)/%.o: $(TEST_SRC_DIR)/%.c | $(TEST_OBJ_DIR)
 	$(CC) $(C_FLAGS) -c $< -o $@
 
 test: $(TEST_OBJS) $(RELEASE_O);
-	$(CC) $(C_FLAGS) -lcriterion -o $(BIN_DIR)/$@ $(TEST_OBJS) $(RELEASE_O) -pthread;
+	$(CC) $(C_FLAGS) -lcriterion -o $(BIN_DIR)/$@ $(TEST_OBJS) $(RELEASE_O);
 
 #------------------------------
 # RELEASE
 #------------------------------
 
-release: C_FLAGS := -std=gnu99 -O2 -g -DNDDEBUG -Wall -Wextra -pthread
+release: C_FLAGS := -std=gnu99 -pthread -O2 -g -DNDDEBUG -Wall -Wextra
 release: clean $(VERSIONED_RELEASE_ASSETS) $(UNVERSIONED_RELEASE_ASSETS) app test;
 	cp $(LIB_HDRS) $(RELEASE_DIR);
 	echo $(VERSION) > $(RELEASE_DIR)/version.txt;
