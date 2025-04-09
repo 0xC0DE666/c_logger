@@ -45,7 +45,7 @@ Logger* logger_new(LogLevel level) {
   return logger;
 }
 
-void logger_destroy(Logger* logger) {
+void logger_free(Logger* logger) {
   if (logger) {
     pthread_mutex_destroy(&logger->lock);
     free(logger);

@@ -54,7 +54,7 @@ typedef struct Logger {
 } Logger;
 
 Logger* logger_new(LogLevel level);
-void logger_destroy(Logger* logger);
+void logger_free(Logger* logger);
 
 void log_fatal(const Logger* logger, const char* message, ...);
 void log_error(const Logger* logger, const char* message, ...);

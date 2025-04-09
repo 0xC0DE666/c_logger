@@ -19,7 +19,7 @@ void redirect_all_std(void) {
 Test(logger_init, creates_logger_with_correct_level) {
     Logger* logger = logger_new(INFO);
     cr_assert_eq(logger->level, INFO, "Logger level should be INFO");
-    logger_destroy(logger);
+    logger_free(logger);
 }
 
 // Test different log levels
@@ -34,7 +34,7 @@ Test(logger_levels, fatal_shows_only_fatal, .init = redirect_all_std) {
     cr_assert_stderr_neq_str("", "Should have some output");
     cr_assert_stderr_eq_str(TXT_BRIGHT_RED "[FATAL] " RESET "(" /* timestamp */ ") -- Fatal message\n",
                            "Should only show FATAL message");
-    logger_destroy(logger);
+    logger_free(logger);
 }
 
 Test(logger_levels, error_shows_fatal_and_error, .init = redirect_all_std) {
@@ -56,7 +56,7 @@ Test(logger_levels, error_shows_fatal_and_error, .init = redirect_all_std) {
     cr_assert(strstr(stderr_output, "Fatal message") != NULL, "Should contain FATAL message");
     cr_assert(strstr(stderr_output, "Error message") != NULL, "Should contain ERROR message");
     cr_assert(strstr(stderr_output, "Warn message") == NULL, "Should not contain WARN message");
-    logger_destroy(logger);
+    logger_free(logger);
 }
 
 // Test message formatting
@@ -74,7 +74,7 @@ Test(logger_formatting, supports_format_strings, .init = redirect_all_std) {
     
     cr_assert(strstr(stdout_output, "Test number: 42, string: hello") != NULL,
               "Should format strings correctly");
-    logger_destroy(logger);
+    logger_free(logger);
 }
 
 // Test timestamp format
@@ -102,7 +102,7 @@ Test(logger_timestamp, has_correct_format, .init = redirect_all_std) {
     
     // Verify timestamp length (should be 19 chars: YYYY-MM-DD HH:MM:SS)
     cr_assert_eq(timestamp_end - timestamp_start - 1, 19, "Timestamp should be in correct format");
-    logger_destroy(logger);
+    logger_free(logger);
 }
 
 // Thread safety test structure
@@ -148,7 +148,7 @@ Test(logger_thread_safety, multiple_threads, .init = redirect_all_std) {
     
     cr_assert_eq(message_count, NUM_THREADS * MESSAGES_PER_THREAD,
                  "All messages should be logged without corruption");
-    logger_destroy(logger);
+    logger_free(logger);
 }
 
 // Test all log levels output
@@ -185,7 +185,7 @@ Test(logger_output, all_levels_verbose, .init = redirect_all_std) {
     cr_assert(strstr(stdout_output, "Debug test") != NULL, "DEBUG should be present");
     cr_assert(strstr(stdout_output, "Trace test") != NULL, "TRACE should be present");
     cr_assert(strstr(stdout_output, "Verbose test") != NULL, "VERBOSE should be present");
-    logger_destroy(logger);
+    logger_free(logger);
 }
 
 // Test empty messages
@@ -201,7 +201,7 @@ Test(logger_edge_cases, empty_message, .init = redirect_all_std) {
     stdout_output[bytes] = '\0';
     
     cr_assert(strstr(stdout_output, "[INFO]") != NULL, "Empty message should still be logged with proper format");
-    logger_destroy(logger);
+    logger_free(logger);
 }
 
 // Test long messages
@@ -221,5 +221,5 @@ Test(logger_edge_cases, long_message, .init = redirect_all_std) {
     stdout_output[bytes] = '\0';
     
     cr_assert(strstr(stdout_output, long_msg) != NULL, "Long message should be logged correctly");
-    logger_destroy(logger);
+    logger_free(logger);
 }
