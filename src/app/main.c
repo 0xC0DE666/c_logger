@@ -16,7 +16,7 @@ void* t_log(void* logger) {
 }
 
 int main() {
-  Logger* logger = logger_new(VERBOSE);
+  Logger* logger = logger_new(VERBOSE, stdout, stderr);
   pthread_t threads[10] = {};
   for (int i = 0; i < 10; ++i) {
     pthread_create(&threads[i], NULL, t_log, &logger);

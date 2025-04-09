@@ -1,7 +1,5 @@
 #include <stdarg.h>
-#include <stdio.h>
 #include <time.h>
-#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -36,12 +34,14 @@ void timestamp(char* buff, size_t size) {
   strftime(buff, size, "%Y-%m-%d %H:%M:%S", time);
 }
 
-Logger* logger_new(LogLevel level) {
+Logger* logger_new(LogLevel level, FILE* out, FILE* err) {
   Logger* logger = (Logger*)malloc(sizeof(Logger));
   if (!logger) return NULL;
   
   pthread_mutex_init(&logger->lock, NULL);
   logger->level = level;
+  logger->out = out;
+  logger->err = err;
   return logger;
 }
 
@@ -61,9 +61,9 @@ void log_fatal(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  fprintf(stderr, TXT_RED "[FATAL] " RESET);
-  fprintf(stderr, "(%s) -- ", stamp);
-  vfprintf(stderr, message, args);
+  fprintf(logger->err, TXT_RED "[FATAL] " RESET);
+  fprintf(logger->err, "(%s) -- ", stamp);
+  vfprintf(logger->err, message, args);
   va_end(args);
   fflush(stderr);
 
@@ -79,9 +79,9 @@ void log_error(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  fprintf(stderr, TXT_BRIGHT_RED "[ERROR] " RESET);
-  fprintf(stderr, "(%s) -- ", stamp);
-  vfprintf(stderr, message, args);
+  fprintf(logger->err, TXT_BRIGHT_RED "[ERROR] " RESET);
+  fprintf(logger->err, "(%s) -- ", stamp);
+  vfprintf(logger->err, message, args);
   va_end(args);
   fflush(stderr);
 
@@ -97,9 +97,9 @@ void log_warn(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  fprintf(stderr, TXT_BRIGHT_YELLOW "[WARN] " RESET);
-  fprintf(stderr, "(%s) -- ", stamp);
-  vfprintf(stderr, message, args);
+  fprintf(logger->err, TXT_BRIGHT_YELLOW "[WARN] " RESET);
+  fprintf(logger->err, "(%s) -- ", stamp);
+  vfprintf(logger->err, message, args);
   va_end(args);
   fflush(stderr);
 
@@ -115,9 +115,9 @@ void log_info(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  fprintf(stdout, TXT_BRIGHT_GREEN "[INFO] " RESET);
-  fprintf(stdout, "(%s) -- ", stamp);
-  vfprintf(stdout, message, args);
+  fprintf(logger->out, TXT_BRIGHT_GREEN "[INFO] " RESET);
+  fprintf(logger->out, "(%s) -- ", stamp);
+  vfprintf(logger->out, message, args);
   va_end(args);
   fflush(stdout);
 
@@ -133,9 +133,9 @@ void log_debug(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  fprintf(stdout, TXT_BRIGHT_BLUE "[DEBUG] " RESET);
-  fprintf(stdout, "(%s) -- ", stamp);
-  vfprintf(stdout, message, args);
+  fprintf(logger->out, TXT_BRIGHT_BLUE "[DEBUG] " RESET);
+  fprintf(logger->out, "(%s) -- ", stamp);
+  vfprintf(logger->out, message, args);
   va_end(args);
   fflush(stdout);
 
@@ -151,9 +151,9 @@ void log_trace(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  fprintf(stdout, TXT_BRIGHT_CYAN "[TRACE] " RESET);
-  fprintf(stdout, "(%s) -- ", stamp);
-  vfprintf(stdout, message, args);
+  fprintf(logger->out, TXT_BRIGHT_CYAN "[TRACE] " RESET);
+  fprintf(logger->out, "(%s) -- ", stamp);
+  vfprintf(logger->out, message, args);
   va_end(args);
   fflush(stdout);
 
@@ -169,9 +169,9 @@ void log_verbose(const Logger* logger, const char* message, ...) {
 
   va_list args;
   va_start(args, message);
-  fprintf(stdout, TXT_BRIGHT_WHITE "[VERBOSE] " RESET);
-  fprintf(stdout, "(%s) -- ", stamp);
-  vfprintf(stdout, message, args);
+  fprintf(logger->out, TXT_BRIGHT_WHITE "[VERBOSE] " RESET);
+  fprintf(logger->out, "(%s) -- ", stamp);
+  vfprintf(logger->out, message, args);
   va_end(args);
   fflush(stdout);
 

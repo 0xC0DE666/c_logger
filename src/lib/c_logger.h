@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 //####################
 // ANSI COLOR CODES
@@ -51,9 +52,11 @@ typedef enum LogLevel {
 typedef struct Logger {
   pthread_mutex_t lock;
   LogLevel level;
+  FILE* out;
+  FILE* err;
 } Logger;
 
-Logger* logger_new(LogLevel level);
+Logger* logger_new(LogLevel level, FILE* out, FILE* err);
 void logger_free(Logger* logger);
 
 void log_fatal(const Logger* logger, const char* message, ...);
