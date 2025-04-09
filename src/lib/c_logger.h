@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <pthread.h>
+#include <stdlib.h>
 
 //####################
 // ANSI COLOR CODES
@@ -34,11 +35,17 @@
 // LOGGER
 //####################
 
-#define BUFF_SIZE_TIMESTAMP 20
-void get_time(char* buff, size_t size);
+#define BUFF_SIZE_TIMESTAMP 32
+void timestamp(char* buff, size_t size);
 
 typedef enum LogLevel {
-  FATAL = 0, ERROR = 1, WARN = 2, INFO = 2, DEBUG = 3, TRACE = 5, VERBOSE = 6
+  FATAL = 0,
+  ERROR = 1,
+  WARN = 2,
+  INFO = 3,
+  DEBUG = 4,
+  TRACE = 5,
+  VERBOSE = 6
 } LogLevel;
 
 typedef struct Logger {
@@ -46,7 +53,8 @@ typedef struct Logger {
   LogLevel level;
 } Logger;
 
-Logger logger_new(LogLevel level);
+Logger* logger_new(LogLevel level);
+void logger_destroy(Logger* logger);
 
 void log_fatal(const Logger* logger, const char* message, ...);
 void log_error(const Logger* logger, const char* message, ...);
