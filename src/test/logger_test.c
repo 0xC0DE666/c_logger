@@ -135,34 +135,45 @@ Test(logger_formatting, supports_format_strings) {
 	fclose(err);
 }
 
-// // Test timestamp format
-// Test(logger_timestamp, has_correct_format, .init = redirect_all_std) {
-//     Logger* logger = logger_new(INFO);
-//     
-//     log_info(logger, "Test message\n");
-//     
-//     fflush(stdout);
-//     char stdout_output[4096] = {0};
-//     FILE* f = cr_get_redirected_stdout();
-//     rewind(f);
-//     size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, f);
-//     stdout_output[bytes] = '\0';
-//     
-//     // Check for timestamp format components
-//     cr_assert(strstr(stdout_output, "[INFO]") != NULL, "Should have INFO level");
-//     cr_assert(strstr(stdout_output, "Test message") != NULL, "Should have message");
-//     
-//     // Verify timestamp format (YYYY-MM-DD HH:MM:SS)
-//     char* timestamp_start = strchr(stdout_output, '(');
-//     cr_assert(timestamp_start != NULL, "Should have timestamp start");
-//     char* timestamp_end = strchr(timestamp_start, ')');
-//     cr_assert(timestamp_end != NULL, "Should have timestamp end");
-//     
-//     // Verify timestamp length (should be 19 chars: YYYY-MM-DD HH:MM:SS)
-//     cr_assert_eq(timestamp_end - timestamp_start - 1, 19, "Timestamp should be in correct format");
-//     logger_free(logger);
-// }
-// 
+Test(logger_timestamp, has_correct_format) {
+	FILE* out = fopen(FILE_OUT, "a+");
+	FILE* err = fopen(FILE_ERR, "a+");
+    if (out == NULL) {
+        perror("Failed to open out");
+    }
+    if (err == NULL) {
+        perror("Failed to open err");
+    }
+
+    Logger* logger = logger_new(INFO, out, err);
+    
+    log_info(logger, "Test message\n");
+    
+    char stdout_output[4096] = {0};
+    rewind(out);
+    size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, out);
+    stdout_output[bytes] = '\0';
+    
+    // Check for timestamp format components
+    cr_assert(strstr(stdout_output, "[INFO]") != NULL, "Should have INFO level");
+    cr_assert(strstr(stdout_output, "Test message") != NULL, "Should have message");
+    
+    // Verify timestamp format (YYYY-MM-DD HH:MM:SS)
+    char* timestamp_start = strchr(stdout_output, '(');
+    cr_assert(timestamp_start != NULL, "Should have timestamp start");
+    char* timestamp_end = strchr(timestamp_start, ')');
+    cr_assert(timestamp_end != NULL, "Should have timestamp end");
+    
+    // Verify timestamp length (should be 19 chars: YYYY-MM-DD HH:MM:SS)
+    cr_assert_eq(timestamp_end - timestamp_start - 1, 19, "Timestamp should be in correct format");
+
+    logger_free(logger);
+	remove(FILE_OUT);
+	remove(FILE_ERR);
+	fclose(out);
+	fclose(err);
+}
+
 // // Thread safety test structure
 // #define NUM_THREADS 4
 // #define MESSAGES_PER_THREAD 100
