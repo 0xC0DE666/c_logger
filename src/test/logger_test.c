@@ -1,3 +1,5 @@
+#include <criterion/assert.h>
+#include <criterion/internal/assert.h>
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -8,8 +10,8 @@
 
 #include "../lib/c_logger.h"
 
-#define FILE_ERR "test.err"
-#define FILE_OUT "test.out"
+#define FILE_ERR "test_%s.err"
+#define FILE_OUT "test_%s.out"
 
 // Redirect stdout/stderr before each test
 // void redirect_all_std(void) {
@@ -27,14 +29,20 @@ Test(logger_init, creates_logger_with_correct_level) {
 }
 
 // Test(logger_levels, error_shows_fatal_and_error, .init = redirect_all_std) {
-Test(logger_levels, error_out) {
-	FILE* out = fopen(FILE_OUT, "a+");
-	FILE* err = fopen(FILE_ERR, "a+");
-    if (out == NULL) {
-        perror("Failed to open out");
-    }
+Test(logger_levels, error_levels_only) {
+	char err_file[1024] = {0};
+	char out_file[1024] = {0};
+
+	snprintf(err_file, 1024, FILE_ERR, "error_levels_only");
+	snprintf(out_file, 1024, FILE_OUT, "error_levels_only");
+
+	FILE* err = fopen(err_file, "a+");
+	FILE* out = fopen(out_file, "a+");
     if (err == NULL) {
         perror("Failed to open err");
+    }
+    if (out == NULL) {
+        perror("Failed to open out");
     }
 
     Logger* logger = logger_new(ERROR, out, err);
@@ -48,10 +56,17 @@ Test(logger_levels, error_out) {
     log_verbose(logger, "Verbose message\n");
 
     char stderr_output[4096] = {0};
+    char stdout_output[4096] = {0};
+
     rewind(err);
-    size_t bytes = fread(stderr_output, 1, sizeof(stderr_output) - 1, err);
-    stderr_output[bytes] = '\0';
-    
+    size_t bytes_err = fread(stderr_output, 1, sizeof(stderr_output) - 1, err);
+    stderr_output[bytes_err] = '\0';
+
+    rewind(out);
+    size_t bytes_out = fread(stdout_output, 1, sizeof(stdout_output) - 1, out);
+    stdout_output[bytes_out] = '\0';
+
+	cr_assert_eq(bytes_out, 0);
     cr_assert(strstr(stderr_output, "Fatal message") != NULL, "Should contain FATAL message");
     cr_assert(strstr(stderr_output, "Error message") != NULL, "Should contain ERROR message");
     cr_assert(strstr(stderr_output, "Warn message") == NULL, "Should not contain WARN message");
@@ -61,60 +76,78 @@ Test(logger_levels, error_out) {
     cr_assert(strstr(stderr_output, "Verbose message") == NULL, "Should not contain Verbose message");
 
     logger_free(logger);
-	remove(FILE_OUT);
-	remove(FILE_ERR);
-	fclose(out);
 	fclose(err);
+	fclose(out);
+	remove(err_file);
+	remove(out_file);
 }
 
-Test(logger_levels, normal_out) {
-	FILE* out = fopen(FILE_OUT, "a+");
-	FILE* err = fopen(FILE_ERR, "a+");
-    if (out == NULL) {
-        perror("Failed to open out");
-    }
+Test(logger_output, all_levels_verbose) {
+	char err_file[1024] = {0};
+	char out_file[1024] = {0};
+
+	snprintf(err_file, 1024, FILE_ERR, "all_levels_verbose");
+	snprintf(out_file, 1024, FILE_OUT, "all_levels_verbose");
+
+	FILE* err = fopen(err_file, "a+");
+	FILE* out = fopen(out_file, "a+");
     if (err == NULL) {
         perror("Failed to open err");
+    }
+    if (out == NULL) {
+        perror("Failed to open out");
     }
 
     Logger* logger = logger_new(VERBOSE, out, err);
     
-    log_fatal(logger, "Fatal message\n");
-    log_error(logger, "Error message\n");
-    log_warn(logger, "Warn message\n");
-    log_info(logger, "Info message\n");
-    log_debug(logger, "Debug message\n");
-    log_trace(logger, "Trace message\n");
-    log_verbose(logger, "Verbose message\n");
-
-    char stdout_output[4096] = {0};
-    rewind(out);
-    size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, out);
-    stdout_output[bytes] = '\0';
+    log_fatal(logger, "Fatal test\n");
+    log_error(logger, "Error test\n");
+    log_warn(logger, "Warn test\n");
+    log_info(logger, "Info test\n");
+    log_debug(logger, "Debug test\n");
+    log_trace(logger, "Trace test\n");
+    log_verbose(logger, "Verbose test\n");
     
-    cr_assert(strstr(stdout_output, "Fatal message") == NULL, "Should not contain FATAL message");
-    cr_assert(strstr(stdout_output, "Error message") == NULL, "Should not contain ERROR message");
-    cr_assert(strstr(stdout_output, "Warn message") == NULL, "Should not contain WARN message");
-    cr_assert(strstr(stdout_output, "Info message") != NULL, "Should contain Info message");
-    cr_assert(strstr(stdout_output, "Debug message") != NULL, "Should contain Debug message");
-    cr_assert(strstr(stdout_output, "Trace message") != NULL, "Should contain Trace message");
-    cr_assert(strstr(stdout_output, "Verbose message") != NULL, "Should contain Verbose message");
+    char stderr_output[4096] = {0};
+	char stdout_output[4096] = {0};
+    
+    rewind(err);
+    size_t bytes_err = fread(stderr_output, 1, sizeof(stderr_output) - 1, err);
+    stderr_output[bytes_err] = '\0';
+    
+    rewind(out);
+    size_t bytes_out = fread(stdout_output, 1, sizeof(stdout_output) - 1, out);
+    stdout_output[bytes_out] = '\0';
+    
+    cr_assert(strstr(stderr_output, "Fatal test") != NULL, "FATAL should be present");
+    cr_assert(strstr(stderr_output, "Error test") != NULL, "ERROR should be present");
+    cr_assert(strstr(stderr_output, "Warn test") != NULL, "WARN should be present");
+    cr_assert(strstr(stdout_output, "Info test") != NULL, "INFO should be present");
+    cr_assert(strstr(stdout_output, "Debug test") != NULL, "DEBUG should be present");
+    cr_assert(strstr(stdout_output, "Trace test") != NULL, "TRACE should be present");
+    cr_assert(strstr(stdout_output, "Verbose test") != NULL, "VERBOSE should be present");
 
     logger_free(logger);
-	remove(FILE_OUT);
-	remove(FILE_ERR);
-	fclose(out);
 	fclose(err);
+	fclose(out);
+	remove(err_file);
+	remove(out_file);
 }
 
 Test(logger_formatting, supports_format_strings) {
-	FILE* out = fopen(FILE_OUT, "a+");
-	FILE* err = fopen(FILE_ERR, "a+");
-    if (out == NULL) {
-        perror("Failed to open out");
-    }
+	char err_file[1024] = {0};
+	char out_file[1024] = {0};
+
+	snprintf(err_file, 1024, FILE_ERR, "supports_format_strings");
+	snprintf(out_file, 1024, FILE_OUT, "supports_format_strings");
+
+	FILE* err = fopen(err_file, "a+");
+	FILE* out = fopen(out_file, "a+");
     if (err == NULL) {
         perror("Failed to open err");
+    }
+    if (out == NULL) {
+        perror("Failed to open out");
     }
 
     Logger* logger = logger_new(INFO, out, err);
@@ -128,21 +161,28 @@ Test(logger_formatting, supports_format_strings) {
     
     cr_assert(strstr(stdout_output, "Test number: 42, string: hello") != NULL,
               "Should format strings correctly");
+
     logger_free(logger);
-	remove(FILE_OUT);
-	remove(FILE_ERR);
-	fclose(out);
 	fclose(err);
+	fclose(out);
+	remove(err_file);
+	remove(out_file);
 }
 
 Test(logger_timestamp, has_correct_format) {
-	FILE* out = fopen(FILE_OUT, "a+");
-	FILE* err = fopen(FILE_ERR, "a+");
-    if (out == NULL) {
-        perror("Failed to open out");
-    }
+	char err_file[1024] = {0};
+	char out_file[1024] = {0};
+
+	snprintf(err_file, 1024, FILE_ERR, "has_correct_format");
+	snprintf(out_file, 1024, FILE_OUT, "has_correct_format");
+
+	FILE* err = fopen(err_file, "a+");
+	FILE* out = fopen(out_file, "a+");
     if (err == NULL) {
         perror("Failed to open err");
+    }
+    if (out == NULL) {
+        perror("Failed to open out");
     }
 
     Logger* logger = logger_new(INFO, out, err);
@@ -168,10 +208,10 @@ Test(logger_timestamp, has_correct_format) {
     cr_assert_eq(timestamp_end - timestamp_start - 1, 19, "Timestamp should be in correct format");
 
     logger_free(logger);
-	remove(FILE_OUT);
-	remove(FILE_ERR);
-	fclose(out);
 	fclose(err);
+	fclose(out);
+	remove(err_file);
+	remove(out_file);
 }
 
 // Thread safety test structure
@@ -188,13 +228,19 @@ void* thread_log_function(void* arg) {
 }
 
 Test(logger_thread_safety, multiple_threads) {
-	FILE* out = fopen(FILE_OUT, "a+");
-	FILE* err = fopen(FILE_ERR, "a+");
-    if (out == NULL) {
-        perror("Failed to open out");
-    }
+	char err_file[1024] = {0};
+	char out_file[1024] = {0};
+
+	snprintf(err_file, 1024, FILE_ERR, "multiple_threads");
+	snprintf(out_file, 1024, FILE_OUT, "multiple_threads");
+
+	FILE* err = fopen(err_file, "a+");
+	FILE* out = fopen(out_file, "a+");
     if (err == NULL) {
         perror("Failed to open err");
+    }
+    if (out == NULL) {
+        perror("Failed to open out");
     }
 
     Logger* logger = logger_new(INFO, out, err);
@@ -223,50 +269,14 @@ Test(logger_thread_safety, multiple_threads) {
     }
     
     cr_assert_eq(message_count, NUM_THREADS * MESSAGES_PER_THREAD, "All messages should be logged without corruption");
+
     logger_free(logger);
-	remove(FILE_OUT);
-	remove(FILE_ERR);
-	fclose(out);
 	fclose(err);
+	fclose(out);
+	remove(err_file);
+	remove(out_file);
 }
 
-// // Test all log levels output
-// Test(logger_output, all_levels_verbose, .init = redirect_all_std) {
-//     Logger* logger = logger_new(VERBOSE);
-//     
-//     log_fatal(logger, "Fatal test\n");
-//     log_error(logger, "Error test\n");
-//     log_warn(logger, "Warn test\n");
-//     log_info(logger, "Info test\n");
-//     log_debug(logger, "Debug test\n");
-//     log_trace(logger, "Trace test\n");
-//     log_verbose(logger, "Verbose test\n");
-//     
-//     fflush(stdout);
-//     fflush(stderr);
-//     
-//     char stderr_output[4096] = {0}, stdout_output[4096] = {0};
-//     
-//     FILE* ferr = cr_get_redirected_stderr();
-//     rewind(ferr);
-//     size_t bytes_err = fread(stderr_output, 1, sizeof(stderr_output) - 1, ferr);
-//     stderr_output[bytes_err] = '\0';
-//     
-//     FILE* fout = cr_get_redirected_stdout();
-//     rewind(fout);
-//     size_t bytes_out = fread(stdout_output, 1, sizeof(stdout_output) - 1, fout);
-//     stdout_output[bytes_out] = '\0';
-//     
-//     cr_assert(strstr(stderr_output, "Fatal test") != NULL, "FATAL should be present");
-//     cr_assert(strstr(stderr_output, "Error test") != NULL, "ERROR should be present");
-//     cr_assert(strstr(stderr_output, "Warn test") != NULL, "WARN should be present");
-//     cr_assert(strstr(stdout_output, "Info test") != NULL, "INFO should be present");
-//     cr_assert(strstr(stdout_output, "Debug test") != NULL, "DEBUG should be present");
-//     cr_assert(strstr(stdout_output, "Trace test") != NULL, "TRACE should be present");
-//     cr_assert(strstr(stdout_output, "Verbose test") != NULL, "VERBOSE should be present");
-//     logger_free(logger);
-// }
-// 
 // // Test empty messages
 // Test(logger_edge_cases, empty_message, .init = redirect_all_std) {
 //     Logger* logger = logger_new(INFO);
