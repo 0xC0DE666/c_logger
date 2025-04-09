@@ -174,52 +174,62 @@ Test(logger_timestamp, has_correct_format) {
 	fclose(err);
 }
 
-// // Thread safety test structure
-// #define NUM_THREADS 4
-// #define MESSAGES_PER_THREAD 100
-// 
-// Void* thread_log_function(void* arg) {
-//     Logger* logger = (Logger*)arg;
-//     for (int i = 0; i < MESSAGES_PER_THREAD; i++) {
-//         log_info(logger, "Thread message %d\n", i);
-//         usleep(1); // Small delay to increase chance of race conditions
-//     }
-//     return NULL;
-// }
-// 
-// Test(logger_thread_safety, multiple_threads, .init = redirect_all_std) {
-//     Logger* logger = logger_new(INFO);
-//     pthread_t threads[NUM_THREADS];
-//     
-//     // Create multiple threads that log simultaneously
-//     for (int i = 0; i < NUM_THREADS; i++) {
-//         pthread_create(&threads[i], NULL, thread_log_function, logger);
-//     }
-//     
-//     // Wait for all threads to complete
-//     for (int i = 0; i < NUM_THREADS; i++) {
-//         pthread_join(threads[i], NULL);
-//     }
-//     
-//     fflush(stdout);
-//     char stdout_output[40960] = {0};  // Large buffer for thread output
-//     FILE* f = cr_get_redirected_stdout();
-//     rewind(f);
-//     size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, f);
-//     stdout_output[bytes] = '\0';
-//     
-//     // Verify we have the expected number of messages
-//     int message_count = 0;
-//     const char* pos = stdout_output;
-//     while ((pos = strstr(pos + 1, "Thread message")) != NULL) {
-//         message_count++;
-//     }
-//     
-//     cr_assert_eq(message_count, NUM_THREADS * MESSAGES_PER_THREAD,
-//                  "All messages should be logged without corruption");
-//     logger_free(logger);
-// }
-// 
+// Thread safety test structure
+#define NUM_THREADS 4
+#define MESSAGES_PER_THREAD 100
+
+void* thread_log_function(void* arg) {
+    Logger* logger = (Logger*)arg;
+    for (int i = 0; i < MESSAGES_PER_THREAD; i++) {
+        log_info(logger, "Thread message %d\n", i);
+        usleep(1); // Small delay to increase chance of race conditions
+    }
+    return NULL;
+}
+
+Test(logger_thread_safety, multiple_threads) {
+	FILE* out = fopen(FILE_OUT, "a+");
+	FILE* err = fopen(FILE_ERR, "a+");
+    if (out == NULL) {
+        perror("Failed to open out");
+    }
+    if (err == NULL) {
+        perror("Failed to open err");
+    }
+
+    Logger* logger = logger_new(INFO, out, err);
+    pthread_t threads[NUM_THREADS];
+    
+    // Create multiple threads that log simultaneously
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_create(&threads[i], NULL, thread_log_function, logger);
+    }
+    
+    // Wait for all threads to complete
+    for (int i = 0; i < NUM_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+    
+    char stdout_output[40960] = {0};  // Large buffer for thread output
+    rewind(out);
+    size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, out);
+    stdout_output[bytes] = '\0';
+    
+    // Verify we have the expected number of messages
+    int message_count = 0;
+    const char* pos = stdout_output;
+    while ((pos = strstr(pos + 1, "Thread message")) != NULL) {
+        message_count++;
+    }
+    
+    cr_assert_eq(message_count, NUM_THREADS * MESSAGES_PER_THREAD, "All messages should be logged without corruption");
+    logger_free(logger);
+	remove(FILE_OUT);
+	remove(FILE_ERR);
+	fclose(out);
+	fclose(err);
+}
+
 // // Test all log levels output
 // Test(logger_output, all_levels_verbose, .init = redirect_all_std) {
 //     Logger* logger = logger_new(VERBOSE);
