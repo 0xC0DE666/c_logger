@@ -2,9 +2,8 @@
 #define C_LOGGER_H
 
 #include <stdbool.h>
-#include <pthread.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <pthread.h>
 
 //####################
 // ANSI COLOR CODES

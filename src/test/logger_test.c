@@ -1,24 +1,12 @@
 #include <criterion/assert.h>
-#include <criterion/internal/assert.h>
-#include <stdio.h>
-#include <string.h>
-#include <pthread.h>
-#include <unistd.h>
-
 #include <criterion/criterion.h>
-#include <criterion/redirect.h>
-#include <criterion/parameterized.h>
+#include <string.h>
+#include <unistd.h>
 
 #include "../lib/c_logger.h"
 
 #define FILE_ERR "test_%s.err"
 #define FILE_OUT "test_%s.out"
-
-// Redirect stdout/stderr before each test
-// void redirect_all_std(void) {
-//     cr_redirect_stdout();
-//     cr_redirect_stderr();
-// }
 
 Test(logger_init, create_logger) {
     Logger* logger = logger_new(INFO, stdout, stderr);
@@ -28,7 +16,6 @@ Test(logger_init, create_logger) {
     logger_free(logger);
 }
 
-// Test(logger_levels, error_shows_fatal_and_error, .init = redirect_all_std) {
 Test(logger_levels, error_levels_only) {
 	char err_file[1024] = {0};
 	char out_file[1024] = {0};
