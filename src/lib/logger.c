@@ -53,134 +53,127 @@ void logger_destroy(Logger* logger) {
 }
 
 void log_fatal(const Logger* logger, const char* message, ...) {
-  if (logger->level >= FATAL) {  // Show message if logger level >= message level
-    if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
+  if (logger->level < FATAL) return;
+  if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
-    char stamp[BUFF_SIZE_TIMESTAMP];
-    timestamp(stamp, BUFF_SIZE_TIMESTAMP);
+  char stamp[BUFF_SIZE_TIMESTAMP];
+  timestamp(stamp, BUFF_SIZE_TIMESTAMP);
 
-    va_list args;
-    va_start(args, message);
-    fprintf(stderr, TXT_BRIGHT_RED "[FATAL] " RESET);
-    fprintf(stderr, "(%s) -- ", stamp);
-    vfprintf(stderr, message, args);
-    va_end(args);
-    fflush(stderr);
+  va_list args;
+  va_start(args, message);
+  fprintf(stderr, TXT_BRIGHT_RED "[FATAL] " RESET);
+  fprintf(stderr, "(%s) -- ", stamp);
+  vfprintf(stderr, message, args);
+  va_end(args);
+  fflush(stderr);
 
-    safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
-  }
+  safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
 }
 
 void log_error(const Logger* logger, const char* message, ...) {
-  if (logger->level >= ERROR) {
-    if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
+  if (logger->level < ERROR) return;
+  if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
-    char stamp[BUFF_SIZE_TIMESTAMP];
-    timestamp(stamp, BUFF_SIZE_TIMESTAMP);
+  char stamp[BUFF_SIZE_TIMESTAMP];
+  timestamp(stamp, BUFF_SIZE_TIMESTAMP);
 
-    va_list args;
-    va_start(args, message);
-    fprintf(stderr, TXT_RED "[ERROR] " RESET);
-    fprintf(stderr, "(%s) -- ", stamp);
-    vfprintf(stderr, message, args);
-    va_end(args);
-    fflush(stderr);
+  va_list args;
+  va_start(args, message);
+  fprintf(stderr, TXT_RED "[ERROR] " RESET);
+  fprintf(stderr, "(%s) -- ", stamp);
+  vfprintf(stderr, message, args);
+  va_end(args);
+  fflush(stderr);
 
-    safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
-  }
+  safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
 }
 
 void log_warn(const Logger* logger, const char* message, ...) {
-  if (logger->level >= WARN) {
-    if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
+  if (logger->level < WARN) return;
+  if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
-    char stamp[BUFF_SIZE_TIMESTAMP];
-    timestamp(stamp, BUFF_SIZE_TIMESTAMP);
+  char stamp[BUFF_SIZE_TIMESTAMP];
+  timestamp(stamp, BUFF_SIZE_TIMESTAMP);
 
-    va_list args;
-    va_start(args, message);
-    fprintf(stderr, TXT_YELLOW "[WARN] " RESET);
-    fprintf(stderr, "(%s) -- ", stamp);
-    vfprintf(stderr, message, args);
-    va_end(args);
-    fflush(stderr);
+  va_list args;
+  va_start(args, message);
+  fprintf(stderr, TXT_YELLOW "[WARN] " RESET);
+  fprintf(stderr, "(%s) -- ", stamp);
+  vfprintf(stderr, message, args);
+  va_end(args);
+  fflush(stderr);
 
-    safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
-  }
+  safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
 }
 
 void log_info(const Logger* logger, const char* message, ...) {
-  if (logger->level >= INFO) {
-    if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
+  if (logger->level < INFO)  return;
+  if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
-    char stamp[BUFF_SIZE_TIMESTAMP];
-    timestamp(stamp, BUFF_SIZE_TIMESTAMP);
+  char stamp[BUFF_SIZE_TIMESTAMP];
+  timestamp(stamp, BUFF_SIZE_TIMESTAMP);
 
-    va_list args;
-    va_start(args, message);
-    fprintf(stdout, TXT_GREEN "[INFO] " RESET);
-    fprintf(stdout, "(%s) -- ", stamp);
-    vfprintf(stdout, message, args);
-    va_end(args);
-    fflush(stdout);
+  va_list args;
+  va_start(args, message);
+  fprintf(stdout, TXT_GREEN "[INFO] " RESET);
+  fprintf(stdout, "(%s) -- ", stamp);
+  vfprintf(stdout, message, args);
+  va_end(args);
+  fflush(stdout);
 
-    safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
-  }
+  safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
 }
 
 void log_debug(const Logger* logger, const char* message, ...) {
-  if (logger->level >= DEBUG) {
-    if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
+  if (logger->level < DEBUG) return;
+  if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
-    char stamp[BUFF_SIZE_TIMESTAMP];
-    timestamp(stamp, BUFF_SIZE_TIMESTAMP);
+  char stamp[BUFF_SIZE_TIMESTAMP];
+  timestamp(stamp, BUFF_SIZE_TIMESTAMP);
 
-    va_list args;
-    va_start(args, message);
-    fprintf(stdout, TXT_BLUE "[DEBUG] " RESET);
-    fprintf(stdout, "(%s) -- ", stamp);
-    vfprintf(stdout, message, args);
-    va_end(args);
-    fflush(stdout);
+  va_list args;
+  va_start(args, message);
+  fprintf(stdout, TXT_BLUE "[DEBUG] " RESET);
+  fprintf(stdout, "(%s) -- ", stamp);
+  vfprintf(stdout, message, args);
+  va_end(args);
+  fflush(stdout);
 
-    safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
-  }
+  safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
 }
 
 void log_trace(const Logger* logger, const char* message, ...) {
-  if (logger->level >= TRACE) {
-    if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
+  if (logger->level < TRACE) return;
+  if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
-    char stamp[BUFF_SIZE_TIMESTAMP];
-    timestamp(stamp, BUFF_SIZE_TIMESTAMP);
+  char stamp[BUFF_SIZE_TIMESTAMP];
+  timestamp(stamp, BUFF_SIZE_TIMESTAMP);
 
-    va_list args;
-    va_start(args, message);
-    fprintf(stdout, TXT_CYAN "[TRACE] " RESET);
-    fprintf(stdout, "(%s) -- ", stamp);
-    vfprintf(stdout, message, args);
-    va_end(args);
-    fflush(stdout);
+  va_list args;
+  va_start(args, message);
+  fprintf(stdout, TXT_CYAN "[TRACE] " RESET);
+  fprintf(stdout, "(%s) -- ", stamp);
+  vfprintf(stdout, message, args);
+  va_end(args);
+  fflush(stdout);
 
-    safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
-  }
+  safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
 }
 
 void log_verbose(const Logger* logger, const char* message, ...) {
-  if (logger->level >= VERBOSE) {
-    if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
+  if (logger->level < VERBOSE) return;
+  if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
-    char stamp[BUFF_SIZE_TIMESTAMP];
-    timestamp(stamp, BUFF_SIZE_TIMESTAMP);
+  char stamp[BUFF_SIZE_TIMESTAMP];
+  timestamp(stamp, BUFF_SIZE_TIMESTAMP);
 
-    va_list args;
-    va_start(args, message);
-    fprintf(stdout, TXT_WHITE "[VERBOSE] " RESET);
-    fprintf(stdout, "(%s) -- ", stamp);
-    vfprintf(stdout, message, args);
-    va_end(args);
-    fflush(stdout);
+  va_list args;
+  va_start(args, message);
+  fprintf(stdout, TXT_WHITE "[VERBOSE] " RESET);
+  fprintf(stdout, "(%s) -- ", stamp);
+  vfprintf(stdout, message, args);
+  va_end(args);
+  fflush(stdout);
 
-    safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
-  }
+  safe_mutex_unlock((pthread_mutex_t*)&logger->lock);
 }
