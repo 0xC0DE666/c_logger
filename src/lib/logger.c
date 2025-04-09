@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdarg.h>
 #include <time.h>
 #include <string.h>
@@ -11,6 +12,8 @@
 
 // Returns 0 on success, -1 on error
 static int safe_mutex_lock(pthread_mutex_t* mutex) {
+  assert(mutex != NULL);
+
   int result = pthread_mutex_lock(mutex);
   if (result != 0) {
     fprintf(stderr, "Failed to lock mutex: %s\n", strerror(result));
@@ -20,6 +23,8 @@ static int safe_mutex_lock(pthread_mutex_t* mutex) {
 }
 
 static int safe_mutex_unlock(pthread_mutex_t* mutex) {
+  assert(mutex != NULL);
+
   int result = pthread_mutex_unlock(mutex);
   if (result != 0) {
     fprintf(stderr, "Failed to unlock mutex: %s\n", strerror(result));
@@ -29,12 +34,16 @@ static int safe_mutex_unlock(pthread_mutex_t* mutex) {
 }
 
 void timestamp(char* buff, size_t size) {
+  assert(buff != NULL);
+
   time_t now = time(NULL);
   struct tm* time = localtime(&now);
   strftime(buff, size, "%Y-%m-%d %H:%M:%S", time);
 }
 
 Logger* logger_new(LogLevel level, FILE* out, FILE* err) {
+  assert(out != NULL && err != NULL);
+
   Logger* logger = (Logger*)malloc(sizeof(Logger));
   if (!logger) return NULL;
   
@@ -46,13 +55,15 @@ Logger* logger_new(LogLevel level, FILE* out, FILE* err) {
 }
 
 void logger_free(Logger* logger) {
-  if (logger) {
-    pthread_mutex_destroy(&logger->lock);
-    free(logger);
-  }
+  assert(logger != NULL);
+
+  pthread_mutex_destroy(&logger->lock);
+  free(logger);
 }
 
 void log_fatal(const Logger* logger, const char* message, ...) {
+  assert(logger != NULL && message != NULL);
+
   if (logger->level < FATAL) return;
   if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
@@ -75,6 +86,8 @@ void log_fatal(const Logger* logger, const char* message, ...) {
 }
 
 void log_error(const Logger* logger, const char* message, ...) {
+  assert(logger != NULL && message != NULL);
+
   if (logger->level < ERROR) return;
   if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
@@ -97,6 +110,8 @@ void log_error(const Logger* logger, const char* message, ...) {
 }
 
 void log_warn(const Logger* logger, const char* message, ...) {
+  assert(logger != NULL && message != NULL);
+
   if (logger->level < WARN) return;
   if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
@@ -119,6 +134,8 @@ void log_warn(const Logger* logger, const char* message, ...) {
 }
 
 void log_info(const Logger* logger, const char* message, ...) {
+  assert(logger != NULL && message != NULL);
+
   if (logger->level < INFO)  return;
   if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
@@ -141,6 +158,8 @@ void log_info(const Logger* logger, const char* message, ...) {
 }
 
 void log_debug(const Logger* logger, const char* message, ...) {
+  assert(logger != NULL && message != NULL);
+
   if (logger->level < DEBUG) return;
   if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
@@ -163,6 +182,8 @@ void log_debug(const Logger* logger, const char* message, ...) {
 }
 
 void log_trace(const Logger* logger, const char* message, ...) {
+  assert(logger != NULL && message != NULL);
+
   if (logger->level < TRACE) return;
   if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
@@ -185,6 +206,8 @@ void log_trace(const Logger* logger, const char* message, ...) {
 }
 
 void log_verbose(const Logger* logger, const char* message, ...) {
+  assert(logger != NULL && message != NULL);
+
   if (logger->level < VERBOSE) return;
   if (safe_mutex_lock((pthread_mutex_t*)&logger->lock) != 0) return;
 
