@@ -1,5 +1,5 @@
 NAME := libc_logger
-VERSION := 2.0.0
+VERSION := 1.0.0
 
 CC := gcc
 C_FLAGS := -std=gnu99 -pthread -g -Wall -Wextra
