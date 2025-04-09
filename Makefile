@@ -36,7 +36,7 @@ $(APP_OBJ_DIR)/%.o: $(APP_SRC_DIR)/%.c | $(APP_OBJ_DIR)
 	$(CC) $(C_FLAGS) -c $< -o $@
 
 app: $(APP_OBJS) $(RELEASE_O);
-	$(CC) $(C_FLAGS) -o $(BIN_DIR)/$@ $(APP_OBJS) $(RELEASE_O);
+	$(CC) $(C_FLAGS) -o $(BIN_DIR)/$@ $(APP_OBJS) $(RELEASE_O) -pthread;
 
 #------------------------------
 # LIB
@@ -86,7 +86,7 @@ $(TEST_OBJ_DIR)/%.o: $(TEST_SRC_DIR)/%.c | $(TEST_OBJ_DIR)
 	$(CC) $(C_FLAGS) -c $< -o $@
 
 test: $(TEST_OBJS) $(RELEASE_O);
-	$(CC) $(C_FLAGS) -lcriterion -o $(BIN_DIR)/$@ $(TEST_OBJS) $(RELEASE_O);
+	$(CC) $(C_FLAGS) -lcriterion -o $(BIN_DIR)/$@ $(TEST_OBJS) $(RELEASE_O) -pthread;
 
 #------------------------------
 # RELEASE

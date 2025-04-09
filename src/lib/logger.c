@@ -13,21 +13,21 @@
 
 // Returns 0 on success, -1 on error
 static int safe_mutex_lock(pthread_mutex_t* mutex) {
-    int result = pthread_mutex_lock(mutex);
-    if (result != 0) {
-        fprintf(stderr, "Failed to lock mutex: %s\n", strerror(result));
-        return -1;
-    }
-    return 0;
+  int result = pthread_mutex_lock(mutex);
+  if (result != 0) {
+    fprintf(stderr, "Failed to lock mutex: %s\n", strerror(result));
+    return -1;
+  }
+  return 0;
 }
 
 static int safe_mutex_unlock(pthread_mutex_t* mutex) {
-    int result = pthread_mutex_unlock(mutex);
-    if (result != 0) {
-        fprintf(stderr, "Failed to unlock mutex: %s\n", strerror(result));
-        return -1;
-    }
-    return 0;
+  int result = pthread_mutex_unlock(mutex);
+  if (result != 0) {
+    fprintf(stderr, "Failed to unlock mutex: %s\n", strerror(result));
+    return -1;
+  }
+  return 0;
 }
 
 void timestamp(char* buff, size_t size) {
