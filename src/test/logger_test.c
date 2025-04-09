@@ -134,6 +134,60 @@ Test(logger_output, all_levels_verbose) {
 	remove(out_file);
 }
 
+Test(logger_edge_cases, empty_message) {
+	char err_file[1024] = {0};
+	char out_file[1024] = {0};
+
+	snprintf(err_file, 1024, FILE_ERR, "empty_message");
+	snprintf(out_file, 1024, FILE_OUT, "empty_message");
+
+	FILE* err = fopen(err_file, "a+");
+	FILE* out = fopen(out_file, "a+");
+    if (err == NULL) {
+        perror("Failed to open err");
+    }
+    if (out == NULL) {
+        perror("Failed to open out");
+    }
+
+    Logger* logger = logger_new(INFO, out, err);
+    
+    log_info(logger, "");
+    
+    char stdout_output[4096] = {0};
+    rewind(out);
+    size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, out);
+    stdout_output[bytes] = '\0';
+    
+    cr_assert(strstr(stdout_output, "[INFO]") != NULL, "Empty message should still be logged with proper format");
+
+    logger_free(logger);
+	fclose(err);
+	fclose(out);
+	remove(err_file);
+	remove(out_file);
+}
+
+// // Test long messages
+// Test(logger_edge_cases, long_message, .init = redirect_all_std) {
+//     Logger* logger = logger_new(INFO);
+//     char long_msg[1024];
+//     memset(long_msg, 'a', 1023);
+//     long_msg[1023] = '\0';
+//     
+//     log_info(logger, "%s\n", long_msg);
+//     
+//     fflush(stdout);
+//     char stdout_output[4096] = {0};
+//     FILE* f = cr_get_redirected_stdout();
+//     rewind(f);
+//     size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, f);
+//     stdout_output[bytes] = '\0';
+//     
+//     cr_assert(strstr(stdout_output, long_msg) != NULL, "Long message should be logged correctly");
+//     logger_free(logger);
+// }
+
 Test(logger_formatting, supports_format_strings) {
 	char err_file[1024] = {0};
 	char out_file[1024] = {0};
@@ -277,38 +331,4 @@ Test(logger_thread_safety, multiple_threads) {
 	remove(out_file);
 }
 
-// // Test empty messages
-// Test(logger_edge_cases, empty_message, .init = redirect_all_std) {
-//     Logger* logger = logger_new(INFO);
-//     log_info(logger, "");
-//     
-//     fflush(stdout);
-//     char stdout_output[4096] = {0};
-//     FILE* f = cr_get_redirected_stdout();
-//     rewind(f);
-//     size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, f);
-//     stdout_output[bytes] = '\0';
-//     
-//     cr_assert(strstr(stdout_output, "[INFO]") != NULL, "Empty message should still be logged with proper format");
-//     logger_free(logger);
-// }
-// 
-// // Test long messages
-// Test(logger_edge_cases, long_message, .init = redirect_all_std) {
-//     Logger* logger = logger_new(INFO);
-//     char long_msg[1024];
-//     memset(long_msg, 'a', 1023);
-//     long_msg[1023] = '\0';
-//     
-//     log_info(logger, "%s\n", long_msg);
-//     
-//     fflush(stdout);
-//     char stdout_output[4096] = {0};
-//     FILE* f = cr_get_redirected_stdout();
-//     rewind(f);
-//     size_t bytes = fread(stdout_output, 1, sizeof(stdout_output) - 1, f);
-//     stdout_output[bytes] = '\0';
-//     
-//     cr_assert(strstr(stdout_output, long_msg) != NULL, "Long message should be logged correctly");
-//     logger_free(logger);
-// }
+
